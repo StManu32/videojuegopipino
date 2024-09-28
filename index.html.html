@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventuras de Pipino en Rosario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        #game-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #story {
+            margin-bottom: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Aventuras de Pipino en Rosario</h1>
+        <div id="story"></div>
+        <div id="choices"></div>
+    </div>
+
+    <script>
+        const gameState = {
+            location: 'start',
+            inventory: []
+        };
+
+        const gameData = {
+            start: {
+                text: "Pipino se encuentra en el centro de Rosario, frente al Monumento a la Bandera. ¿Qué debería hacer?",
+                choices: [
+                    { text: "Ir al Parque España", nextLocation: "parqueEspana" },
+                    { text: "Visitar el Mercado del Patio", nextLocation: "mercadoPatio" },
+                    { text: "Pasear por calle Córdoba", nextLocation: "calleCórdoba" }
+                ]
+            },
+            parqueEspana: {
+                text: "Pipino llega al Parque España y disfruta de la vista del río Paraná. Ve a unos chicos jugando al fútbol.",
+                choices: [
+                    { text: "Unirse al partido de fútbol", nextLocation: "jugarFutbol" },
+                    { text: "Sentarse a tomar mate", nextLocation: "tomarMate" },
+                    { text: "Volver al centro", nextLocation: "start" }
+                ]
+            },
+            mercadoPatio: {
+                text: "En el Mercado del Patio, Pipino se maravilla con la variedad de comidas y productos locales.",
+                choices: [
+                    { text: "Comprar un choripán", nextLocation: "comprarChoripan" },
+                    { text: "Explorar los puestos de artesanías", nextLocation: "explorarArtesanias" },
+                    { text: "Salir del mercado", nextLocation: "start" }
+                ]
+            },
+            calleCórdoba: {
+                text: "Pipino pasea por la calle Córdoba, el corazón comercial de Rosario. Las tiendas y la gente lo rodean.",
+                choices: [
+                    { text: "Entrar a una librería", nextLocation: "libreria" },
+                    { text: "Tomar un café en una esquina", nextLocation: "cafeEsquina" },
+                    { text: "Volver al Monumento", nextLocation: "start" }
+                ]
+            },
+            jugarFutbol: {
+                text: "Pipino se une al partido y marca un gol. Todos lo felicitan por su habilidad.",
+                choices: [
+                    { text: "Seguir jugando", nextLocation: "jugarFutbol" },
+                    { text: "Despedirse y seguir explorando", nextLocation: "parqueEspana" }
+                ]
+            },
+            tomarMate: {
+                text: "Pipino saca su mate y disfruta de la tarde rosarina junto al río.",
+                choices: [
+                    { text: "Continuar explorando el parque", nextLocation: "parqueEspana" },
+                    { text: "Volver al centro", nextLocation: "start" }
+                ]
+            },
+            comprarChoripan: {
+                text: "Pipino compra un delicioso choripán y lo disfruta mientras camina por el mercado.",
+                choices: [
+                    { text: "Seguir explorando el mercado", nextLocation: "mercadoPatio" },
+                    { text: "Salir a la ciudad", nextLocation: "start" }
+                ]
+            },
+            explorarArtesanias: {
+                text: "Pipino encuentra hermosas artesanías locales. Compra un pequeño mate de recuerdo.",
+                choices: [
+                    { text: "Continuar en el mercado", nextLocation: "mercadoPatio" },
+                    { text: "Salir a la ciudad", nextLocation: "start" }
+                ]
+            },
+            libreria: {
+                text: "En la librería, Pipino encuentra un libro sobre la historia de Rosario.",
+                choices: [
+                    { text: "Comprar el libro", nextLocation: "comprarLibro" },
+                    { text: "Salir de la librería", nextLocation: "calleCórdoba" }
+                ]
+            },
+            cafeEsquina: {
+                text: "Pipino toma un café en una esquina concurrida, observando el ajetreo de la ciudad.",
+                choices: [
+                    { text: "Seguir paseando", nextLocation: "calleCórdoba" },
+                    { text: "Volver al Monumento", nextLocation: "start" }
+                ]
+            },
+            comprarLibro: {
+                text: "Pipino compra el libro y decide leerlo en un banco cercano.",
+                choices: [
+                    { text: "Leer un rato", nextLocation: "leerLibro" },
+                    { text: "Guardar el libro y seguir explorando", nextLocation: "calleCórdoba" }
+                ]
+            },
+            leerLibro: {
+                text: "Pipino aprende sobre la rica historia de Rosario y se siente más conectado con la ciudad.",
+                choices: [
+                    { text: "Continuar explorando", nextLocation: "start" },
+                    { text: "Buscar más lugares históricos", nextLocation: "lugaresHistoricos" }
+                ]
+            },
+            lugaresHistoricos: {
+                text: "Inspirado por el libro, Pipino decide visitar algunos lugares históricos de Rosario.",
+                choices: [
+                    { text: "Ir al Museo de la Ciudad", nextLocation: "museoCiudad" },
+                    { text: "Visitar la casa natal de Che Guevara", nextLocation: "casaChe" },
+                    { text: "Volver al centro", nextLocation: "start" }
+                ]
+            }
+        };
+
+        function updateGame(location) {
+            gameState.location = location;
+            const currentLocation = gameData[location];
+            
+            document.getElementById('story').innerText = currentLocation.text;
+            
+            const choicesContainer = document.getElementById('choices');
+            choicesContainer.innerHTML = '';
+            
+            currentLocation.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.innerText = choice.text;
+                button.onclick = () => updateGame(choice.nextLocation);
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        // Iniciar el juego
+        updateGame('start');
+    </script>
+</body>
+</html>
